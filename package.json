@@ -1,0 +1,19 @@
+{
+  "name": "lambda-rds-loader",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^1.5.0",
+    "csv-parse": "^1.0.1",
+    "node-uuid": "^1.4.7",
+    "pg": "^4.4.3",
+    "pg-copy-streams": "^0.3.0",
+    "s3-streams": "^0.3.0"
+  }
+}
