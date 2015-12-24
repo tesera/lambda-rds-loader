@@ -180,6 +180,15 @@ q_schema = function(callback) {
 	});
 };
 
+q_folderDepthLevelForTableName = function(callback) {
+	rl.question('Enter the folder depth from bucket root to use as table name. Use negative index to select from the input file > ', function(answer) {
+		dynamoConfig.Item.folderDepthLevelForTableName = {
+			N : '' + common.getIntValue(answer, rl)
+		};
+		callback(null);
+	});
+};
+
 q_truncateTable = function(callback) {
 	rl.question('Should the Table be Truncated before Load? (Y/N) > ', function(answer) {
 		dynamoConfig.Item.loadRDS.L[0].M.truncateTarget = {
@@ -231,6 +240,7 @@ qs.push(q_rdsHost);
 qs.push(q_rdsPort);
 qs.push(q_rdsDB);
 qs.push(q_schema);
+qs.push(q_folderDepthLevelForTableName);
 qs.push(q_truncateTable);
 qs.push(q_userName);
 qs.push(q_userPwd);

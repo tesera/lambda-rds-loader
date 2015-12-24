@@ -29,13 +29,24 @@ var async = require('async');
 
 exports.handler = function(event, context) {
     
-    exports.get_table_name = function(inputInfo) {
+    exports.getColumnType = function(value) {
+        var type = "text";
+        if(new Date(value) !== "Invalid Date" && !isNaN(new Date(value))) type = "datetime";
+        if(value.match(/^(\d+\.?\d{0,9}|\.\d{1,9})$/)) type = "numeric";
+        return type;
+    };
+
+    exports.getTableName = function(inputInfo) {
         var table = inputInfo.key.split('/');
-        table = table[inputInfo.folderDepthLevelForTableName];
+        if(inputInfo.folderDepthLevelForTableName < 0) {
+            table.reverse();
+            inputInfo.folderDepthLevelForTableName = (inputInfo.folderDepthLevelForTableName * -1);
+        }
+        table = table[inputInfo.folderDepthLevelForTableName].replace(/[\W]+/g,'_');
         return table;
     };
 
-    exports.create_table_if_not_exists = function(inputInfo, callback) {
+    exports.createTableIfNotExists = function(inputInfo, callback) {
         if(inputInfo.tableName === null) {
             var msg = 'Table name cannot be null.';
             console.log(msg);
@@ -50,7 +61,9 @@ exports.handler = function(event, context) {
                     var sql = "CREATE TABLE IF NOT EXISTS " + inputInfo.tableName + "(";
                     var columns = [];
                     for(var i = 0; i < output[0].length; i++) {
-                        columns.push(output[0][i] + " numeric");
+
+
+                        columns.push(output[0][i] + " " + exports.getColumnType(output[1][i]));
                     }
 
                     if(columns.length === 0) {
@@ -94,6 +107,7 @@ exports.handler = function(event, context) {
                         inputInfo.connectionString = 'postgres://' + config.loadRDS.L[0].M.connectUser.S + ':' + decryptedConfigItems.rdsPassword.toString() + '@' 
                             + config.loadRDS.L[0].M.rdsHost.S + ':' + config.loadRDS.L[0].M.rdsPort.N + '/' + config.loadRDS.L[0].M.rdsDB.S;
                         inputInfo.schema = config.loadRDS.L[0].M.targetSchema.S;
+                        inputInfo.folderDepthLevelForTableName = config.folderDepthLevelForTableName.N;
                         exports.runImport(inputInfo);
                     }
                 });
@@ -105,11 +119,11 @@ exports.handler = function(event, context) {
         for(var i = 0; i < event.Records.length; i++) {
             if(i === 0) {
                 inputInfo.key = event.Records[i].s3.object.key;
-                var name = exports.get_table_name(inputInfo);
+                var name = exports.getTableName(inputInfo);
                 inputInfo.tableName = (inputInfo.schema.length > 0 ? inputInfo.schema + '.' + name : name);
                 console.log('Table to import data into: ' + inputInfo.tableName);
                 
-                exports.create_table_if_not_exists(inputInfo, function() {
+                exports.createTableIfNotExists(inputInfo, function() {
                     var stream = S3S.ReadStream(s3, {Bucket: inputInfo.bucket, Key: inputInfo.key});
                     pg.connect(inputInfo.connectionString, function(err, client) {
                         if (err) console.log(err);
