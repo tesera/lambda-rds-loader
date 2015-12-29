@@ -25,7 +25,6 @@ var S3S = require('s3-streams');
 var pgCopy = require('pg-copy-streams').from;
 var pg = require('pg');
 var parse = require('csv-parse');
-var async = require('async');
 var Q = require('q');
 var pgp = require('pg-promise')({ promiseLib: Q });
 var db;
@@ -235,7 +234,6 @@ exports.handler = function(event, context) {
         console.log('No records found');
         context.done();
     } else {
-        var inputInfo = {}
         exports.getConfig()
             .then(exports.updateConfig)
             .then(exports.getTableNames)
