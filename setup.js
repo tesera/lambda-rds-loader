@@ -26,9 +26,6 @@ var setRegion;
 dynamoConfig = {
 	TableName : configTable,
 	Item : {
-		truncateTarget : {
-			BOOL : false
-		},
 		currentBatch : {
 			S : uuid.v4()
 		},
@@ -180,6 +177,19 @@ q_schema = function(callback) {
 	});
 };
 
+q_tablePrefix = function(callback) {
+	rl.question('Enter table prefix (optional but recommended if keys start with numericals) > ', function(answer) {
+		if (answer && answer !== null && answer !== "") {
+			dynamoConfig.Item.loadRDS.L[0].M.tablePrefix = {
+				S : answer
+			};
+			callback(null);
+		} else {
+			callback(null);
+		}
+	});
+};
+
 q_folderDepthLevelForTableName = function(callback) {
 	rl.question('Enter the folder depth from bucket root to use as table name. Use negative index to select from the input file > ', function(answer) {
 		dynamoConfig.Item.folderDepthLevelForTableName = {
@@ -240,6 +250,7 @@ qs.push(q_rdsHost);
 qs.push(q_rdsPort);
 qs.push(q_rdsDB);
 qs.push(q_schema);
+qs.push(q_tablePrefix);
 qs.push(q_folderDepthLevelForTableName);
 qs.push(q_truncateTable);
 qs.push(q_userName);
