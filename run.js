@@ -15,6 +15,7 @@ if(program.path) {
     importer.getS3Records(path.host, path.pathname)
         .then(function(records) {
             importer.records = records;
+            console.log('Found', records.length, 'records.');
             importer.run();
         })
         .catch(function(error) {
@@ -22,6 +23,6 @@ if(program.path) {
         });
 
 } else {
-    console.log('Please provide an s3 path parameter.');
+    console.log('Enter s3 bucket and prefix in format s3://bucket/prefix');
     process.exit(1);
 }
