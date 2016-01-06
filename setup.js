@@ -228,9 +228,9 @@ last = function(callback) {
 	setup(null, callback);
 };
 
-q_singleTable = function(callback) {
+q_useSingleTable = function(callback) {
 	rl.question('Should the load utilize a single table for loads? (Y/N) > ', function(answer) {
-		dynamoConfig.Item.loadRDS.L[0].M.singleTable = {
+		dynamoConfig.Item.loadRDS.L[0].M.useSingleTable = {
 			BOOL : common.getBooleanValue(answer)
 		};
 		callback(null);
@@ -260,7 +260,7 @@ qs.push(q_rdsPort);
 qs.push(q_rdsDB);
 qs.push(q_schema);
 qs.push(q_tablePrefix);
-qs.push(q_singleTable);
+qs.push(q_useSingleTable);
 qs.push(q_folderDepthLevelForTableName);
 qs.push(q_truncateTable);
 qs.push(q_userName);
