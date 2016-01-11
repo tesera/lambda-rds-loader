@@ -6,23 +6,37 @@ var Importer = require('./lib/importer');
 
 program
     .version('0.0.1')
-    .option('-p, --path', 'Enter s3 bucket and prefix in format s3://bucket/prefix')
+    .arguments('<path> [table]')
+    .option('-d, --debug', 'Debug to console')
+    .option('<path>', 'Enter s3 bucket and prefix in format s3://bucket/prefix')
+    .option('[table]', 'Override table name in single table mode')
+    .action(function (path, table) {
+        program.pathValue = path;
+        program.tableValue = table;
+    })
     .parse(process.argv);
 
-if(program.path) {
-    var path = url.parse(program.args[0]);
-    var importer = new Importer([]);
+if (!program.args.length) {
+    program.help();
+    process.exit(1);
+} else if(typeof program.pathValue === 'undefined') {
+    console.log('Enter s3 bucket and prefix in format s3://bucket/prefix');
+    process.exit(1);
+} else {
+    var path = url.parse(program.pathValue);
+    var importer = new Importer([], program.debug);
     importer.getS3Records(path.host, path.pathname)
         .then(function(records) {
             importer.records = records;
-            console.log('Found', records.length, 'records.');
-            importer.run();
+            if(typeof program.tableValue !== 'undefined') {
+                importer.defaultTableName = program.tableValue;
+            }
+            importer.run().then(function(response) {
+                console.log('Done.');
+                process.exit(response);
+            })
         })
         .catch(function(error) {
             console.log(error);
         });
-
-} else {
-    console.log('Enter s3 bucket and prefix in format s3://bucket/prefix');
-    process.exit(1);
 }

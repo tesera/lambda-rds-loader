@@ -6,6 +6,9 @@ exports.handler = function(event, context) {
         context.done();
     } else {
         var importer = new Importer(event.Records);
-        importer.run();    
+        importer.run()
+        	.then(function(response) {
+            	context.done(response);
+        	};
     }
 };
