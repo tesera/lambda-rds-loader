@@ -200,7 +200,7 @@ q_folderDepthLevelForTableName = function(callback) {
 };
 
 q_truncateTable = function(callback) {
-	rl.question('Should the Table be Truncated before Load? (Y/N) > ', function(answer) {
+	rl.question('Should the Table be Truncated before starting Load? (Y/N) > ', function(answer) {
 		dynamoConfig.Item.loadRDS.L[0].M.truncateTarget = {
 			BOOL : common.getBooleanValue(answer)
 		};
@@ -209,17 +209,19 @@ q_truncateTable = function(callback) {
 };
 
 q_csvDelimiter = function(callback) {
-	//if (dynamoConfig.Item.dataFormat.S === 'CSV') {
-		rl.question('Enter the CSV Delimiter > ', function(answer) {
-			common.validateNotNull(answer, 'You Must the Delimiter for CSV Input', rl);
+	rl.question('Enter the CSV Delimiter (default: ,) > ', function(answer) {
+		if (answer && answer !== null && answer !== "") {
 			dynamoConfig.Item.csvDelimiter = {
 				S : answer
 			};
-			callback(null);
-		});
-	//} else {
-	//	callback(null);
-	//}
+		} else {
+			dynamoConfig.Item.csvDelimiter = {
+				S : ','
+			};
+		}
+
+		callback(null);
+	});
 };
 
 last = function(callback) {
@@ -234,6 +236,40 @@ q_useSingleTable = function(callback) {
 			BOOL : common.getBooleanValue(answer)
 		};
 		callback(null);
+	});
+};
+
+q_accessKeyId = function(callback) {
+	rl.question('Enter AWS_ACCESS_KEY_ID if using Redshift on port 5439 > ', function(answer) {
+		if (!answer || answer === null) answer = 'na';
+		kmsCrypto.encrypt(answer, function(err, ciphertext) {
+			if (err) {
+				console.log(JSON.stringify(err));
+				process.exit(ERROR);
+			} else {
+				dynamoConfig.Item.loadRDS.L[0].M.awsAccessKeyId = {
+					S : kmsCrypto.toLambdaStringFormat(ciphertext)
+				};
+				callback(null);
+			}
+		});
+	});
+};
+
+q_secretAccessKey = function(callback) {
+	rl.question('Enter AWS_SECRET_ACCESS_KEY if using Redshift on port 5439 > ', function(answer) {
+		if (!answer || answer === null) answer = 'na';
+		kmsCrypto.encrypt(answer, function(err, ciphertext) {
+			if (err) {
+				console.log(JSON.stringify(err));
+				process.exit(ERROR);
+			} else {
+				dynamoConfig.Item.loadRDS.L[0].M.awsSecretAccessKey = {
+					S : kmsCrypto.toLambdaStringFormat(ciphertext)
+				};
+				callback(null);
+			}
+		});
 	});
 };
 
@@ -257,14 +293,16 @@ qs.push(q_s3Prefix);
 qs.push(q_filenameFilter);
 qs.push(q_rdsHost);
 qs.push(q_rdsPort);
+qs.push(q_userName);
+qs.push(q_userPwd);
+qs.push(q_accessKeyId);
+qs.push(q_secretAccessKey);
 qs.push(q_rdsDB);
 qs.push(q_schema);
 qs.push(q_tablePrefix);
+qs.push(q_truncateTable);
 qs.push(q_useSingleTable);
 qs.push(q_folderDepthLevelForTableName);
-qs.push(q_truncateTable);
-qs.push(q_userName);
-qs.push(q_userPwd);
 qs.push(q_csvDelimiter);
 
 // always have to have the 'last' function added to halt the readline channel

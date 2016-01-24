@@ -27,14 +27,19 @@ if (!program.args.length) {
     var importer = new Importer([], program.debug);
     importer.getS3Records(path.host, path.pathname)
         .then(function(records) {
-            importer.records = records;
-            if(typeof program.tableValue !== 'undefined') {
-                importer.defaultTableName = program.tableValue;
+            if(records.length === 0) {
+                console.log('No records found on ' + program.pathValue);
+                process.exit();
+            } else {
+                importer.records = records;
+                if(typeof program.tableValue !== 'undefined') {
+                    importer.defaultTableName = program.tableValue;
+                }
+                importer.run().then(function(response) {
+                    console.log('Done.');
+                    process.exit(response);
+                });
             }
-            importer.run().then(function(response) {
-                console.log('Done.');
-                process.exit(response);
-            })
         })
         .catch(function(error) {
             console.log(error);
