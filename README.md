@@ -66,9 +66,13 @@ Enter the Schema | N | Schema to use, default: public.
 Enter table prefix | N | Prefix newly created tables. This is recommended if files start with numbers.
 Enter the folder depth from bucket root to use as table name. Use negative index to select from the input file | Y | Determines names for new tables. For example: /test/path/file.csv, index of 0 would create a table named *test* and index of -1 would creat a table named *file_csv*.
 Should the Table be Truncated before Load? | N | Truncate table before loading new data.
+Create unlogged tables, fast for inserts and not supported on Redshift. See PostgreSQL docs for UNLOGGED? (Y/N) >  | N | Create unlogged tables for faster inserts. This is a dangerous data type for persistent storage, see PostgreSQL docs.
 Enter the Database Username | Y | Database username.
 Enter the Database Password | Y | Database password.
 Enter the CSV Delimiter | N | CSV delimiter, default: ,.
+Enter AWS_ACCESS_KEY_ID if using Redshift on port 5439 >  | | For import from S3 into Redshift
+Enter AWS_SECRET_ACCESS_KEY if using Redshift on port 5439 >  | | For import from S3 into Redshift
+
 
 Configuration will be stored in DynamoDB database LambdaRDSLoaderConfig.
 

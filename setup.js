@@ -208,6 +208,24 @@ q_truncateTable = function(callback) {
 	});
 };
 
+q_truncateTable = function(callback) {
+	rl.question('Should the Table be Truncated before starting Load? (Y/N) > ', function(answer) {
+		dynamoConfig.Item.loadRDS.L[0].M.truncateTarget = {
+			BOOL : common.getBooleanValue(answer)
+		};
+		callback(null);
+	});
+};
+
+q_unloggedTables = function(callback) {
+	rl.question('Create unlogged tables, fast for inserts and not supported on Redshift. See PostgreSQL docs for UNLOGGED? (Y/N) > ', function(answer) {
+		dynamoConfig.Item.loadRDS.L[0].M.unloggedTables = {
+			BOOL : common.getBooleanValue(answer)
+		};
+		callback(null);
+	});
+};
+
 q_csvDelimiter = function(callback) {
 	rl.question('Enter the CSV Delimiter (default: ,) > ', function(answer) {
 		if (answer && answer !== null && answer !== "") {
@@ -301,6 +319,7 @@ qs.push(q_rdsDB);
 qs.push(q_schema);
 qs.push(q_tablePrefix);
 qs.push(q_truncateTable);
+qs.push(q_unloggedTables);
 qs.push(q_useSingleTable);
 qs.push(q_folderDepthLevelForTableName);
 qs.push(q_csvDelimiter);
